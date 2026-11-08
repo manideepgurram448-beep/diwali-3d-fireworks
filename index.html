@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#05060f" />
+<meta name="description" content="Happy Diwali 2026 — a premium interactive 3D virtual fireworks experience. Touch virtual crackers and light up the sky. 100% virtual, safe and non-explosive." />
+<title>Happy Diwali 2026 — Experience The Magic Of Lights</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cormorant+Garamond:ital,wght@1,500&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+
+<body>
+<div id="app">
+
+  <!-- ============ 3D CANVAS LAYER ============ -->
+  <div id="stage3d" aria-hidden="true">
+    <canvas id="scene-canvas"></canvas>
+  </div>
+  <div class="fx-vignette" aria-hidden="true"></div>
+  <div class="fx-grain" aria-hidden="true"></div>
+  <canvas id="fx-canvas" class="fx-overlay" aria-hidden="true"></canvas>
+
+  <!-- ============ LOADING SCREEN ============ -->
+  <div id="loader" class="loader">
+    <div class="loader__inner">
+      <div class="diya">
+        <span class="diya__flame"></span>
+        <span class="diya__glow"></span>
+      </div>
+      <h1 class="loader__title">DIWALI <em>2026</em></h1>
+      <p class="loader__text">Preparing the celebration<span class="dots"><i>.</i><i>.</i><i>.</i></span></p>
+      <div class="loader__bar"><span id="loader-fill"></span></div>
+      <p class="loader__pct" id="loader-pct">0%</p>
+    </div>
+  </div>
+
+  <!-- ============ TOP BAR ============ -->
+  <header id="topbar" class="topbar">
+    <div class="brand">
+      <span class="brand__mark">✦</span>
+      <span class="brand__text">DIWALI<b>2026</b></span>
+    </div>
+
+    <nav class="controls" aria-label="Experience controls">
+      <button id="btn-sound" class="ctrl" data-on="false" title="Sound effects on / off" aria-label="Toggle sound effects">
+        <svg viewBox="0 0 24 24" class="ctrl__icon"><path d="M4 9.5h3l4-3.5v12l-4-3.5H4z"/><path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7"/><path class="wave" d="M18 6a8.5 8.5 0 0 1 0 12"/><path class="slash" d="M3 3l18 18"/></svg>
+        <span class="ctrl__label">SFX</span>
+      </button>
+
+      <button id="btn-music" class="ctrl" data-on="false" title="Background music on / off" aria-label="Toggle background music">
+        <svg viewBox="0 0 24 24" class="ctrl__icon"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/><path class="slash" d="M3 3l18 18"/></svg>
+        <span class="ctrl__label">Music</span>
+      </button>
+
+      <div class="ctrl ctrl--vol">
+        <svg viewBox="0 0 24 24" class="ctrl__icon"><path d="M4 9.5h3l4-3.5v12l-4-3.5H4z"/><path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+        <input id="volume" type="range" min="0" max="100" value="70" step="1" aria-label="Master volume" />
+      </div>
+
+      <button id="btn-settings" class="ctrl" title="Celebration settings" aria-label="Open settings">
+        <svg viewBox="0 0 24 24" class="ctrl__icon"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M18.5 5.5l-2.1 2.1M7.6 16.4l-2.1 2.1"/></svg>
+        <span class="ctrl__label">Setup</span>
+      </button>
+
+      <button id="btn-slow-mo" class="ctrl" data-on="false" title="Slow-motion replay mode" aria-label="Toggle slow-motion mode">
+        <svg viewBox="0 0 24 24" class="ctrl__icon"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+        <span class="ctrl__label">Slow</span>
+      </button>
+
+      <button id="btn-cinematic" class="ctrl" data-on="false" title="Full-screen cinematic mode" aria-label="Toggle cinematic mode">
+        <svg viewBox="0 0 24 24" class="ctrl__icon"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18M7.5 5v4M16.5 5v4"/></svg>
+        <span class="ctrl__label">Cinema</span>
+      </button>
+
+      <button id="btn-fullscreen" class="ctrl" title="Fullscreen" aria-label="Toggle fullscreen">
+        <svg viewBox="0 0 24 24" class="ctrl__icon"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+        <span class="ctrl__label">Full</span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- ============ SETTINGS PANEL ============ -->
+  <aside id="settings" class="panel glass" aria-label="Settings panel">
+    <div class="panel__head">
+      <h3>Celebration Controls</h3>
+      <button id="btn-close-settings" class="panel__close" aria-label="Close settings">✕</button>
+    </div>
+
+    <div class="panel__body">
+      <label class="field">
+        <span class="field__label">Fireworks Intensity <b id="intensity-val">Medium</b></span>
+        <input id="intensity" type="range" min="0" max="2" step="1" value="1" />
+        <span class="field__hint">Low · Medium · Spectacular</span>
+      </label>
+
+      <label class="field">
+        <span class="field__label">Explosion Density <b id="density-val">100%</b></span>
+        <input id="density" type="range" min="40" max="160" step="10" value="100" />
+        <span class="field__hint">Particles per cracker</span>
+      </label>
+
+      <div class="field">
+        <span class="field__label">Background Theme</span>
+        <div class="themes" id="themes">
+          <button class="theme is-active" data-theme="midnight" title="Midnight Blue"><i style="--c:#0b1230;--c2:#1b2a6b"></i>Midnight</button>
+          <button class="theme" data-theme="royal" title="Royal Purple"><i style="--c:#170a2e;--c2:#59209b"></i>Royal</button>
+          <button class="theme" data-theme="ember" title="Ember Night"><i style="--c:#1a0a06;--c2:#8c2f10"></i>Ember</button>
+          <button class="theme" data-theme="emerald" title="Emerald Night"><i style="--c:#04170f;--c2:#0e6b4a"></i>Emerald</button>
+            <button class="theme" data-theme="rose" title="Rose Gold"><i style="--c:#20081a;--c2:#8a1f52"></i>Rose</button>
+          <button class="theme" data-theme="void" title="Pure Black"><i style="--c:#000000;--c2:#2a2a2a"></i>Void</button>
+        </div>
+      </div>
+
+      <div class="field field--row">
+        <button id="btn-random" class="tgl" data-on="false">
+          <span class="tgl__dot"></span><span class="tgl__txt">Random Fireworks</span>
+        </button>
+        <button id="btn-continuous" class="tgl" data-on="false">
+          <span class="tgl__dot"></span><span class="tgl__txt">Continuous Celebration</span>
+        </button>
+      </div>
+
+      <div class="field field--row">
+        <button id="btn-quality" class="tgl" data-on="false">
+          <span class="tgl__dot"></span><span class="tgl__txt">Low Performance Mode</span>
+        </button>
+        <button id="btn-greeting" class="tgl tgl--solid">
+          <span class="tgl__txt">Diwali Greeting</span>
+        </button>
+      </div>
+
+      <div class="field field--row">
+        <button id="btn-restart" class="btn btn--ghost">↺ Restart Celebration</button>
+        <button id="btn-share" class="btn btn--ghost">⤴ Share Celebration</button>
+      </div>
+
+      <p class="panel__note">
+        Virtual simulator only — nothing here ignites or controls real firecrackers.
+      </p>
+    </div>
+  </aside>
+
+  <!-- ============ LANDING ============ -->
+  <section id="landing" class="landing">
+    <div class="landing__inner">
+      <p class="eyebrow"><span></span>A Festival Of Lights<span></span></p>
+      <h1 class="hero-title">HAPPY<br/>DIWALI <em>2026</em></h1>
+      <p class="hero-sub">Experience The Magic Of Lights</p>
+      <p class="hero-desc">
+        Touch your favourite crackers and experience an incredible virtual fireworks celebration.
+      </p>
+
+      <div class="hero-actions">
+        <button id="btn-enter" class="btn btn--primary">
+          <span>ENTER THE CELEBRATION</span>
+        </button>
+        <button id="btn-explore" class="btn btn--outline">EXPLORE CRACKERS</button>
+        <button id="btn-start" class="btn btn--outline">START FIREWORKS</button>
+      </div>
+
+      <p class="hero-hint">
+        <span class="dot"></span> Tap anywhere in the sky to launch a firework
+      </p>
+    </div>
+
+    <button id="btn-scroll-hint" class="scroll-hint" aria-hidden="true">
+      <span></span>Enter The Celebration
+    </button>
+  </section>
+
+  <!-- ============ CELEBRATION HUD ============ -->
+  <div id="celebration" class="celebration is-hidden">
+    <div class="dock" id="dock" role="tablist" aria-label="Cracker selection">
+      <!-- cards injected by script.js -->
+    </div>
+    <button id="dock-prev" class="dock-nav dock-nav--prev" type="button" aria-label="Show previous crackers">‹</button>
+    <button id="dock-next" class="dock-nav dock-nav--next" type="button" aria-label="Show more crackers">›</button>
+
+    <button id="btn-replay" class="hud-fab hud-fab--replay" type="button" title="Replay last explosion in slow motion" aria-label="Replay last explosion">
+      <svg viewBox="0 0 24 24"><path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg>
+      <span>Replay</span>
+    </button>
+
+    <button id="btn-back-home" class="back-home" title="Back to greeting">✕</button>
+
+    <button id="btn-cinema-2" class="back-home back-home--cinema is-hidden" title="Exit cinematic mode" aria-label="Exit cinematic mode">✕</button>
+  </div>
+
+  <!-- ============ GREETING MODAL ============ -->
+  <div id="greeting" class="modal glass is-hidden" role="dialog" aria-modal="true" aria-labelledby="greeting-title">
+    <div class="modal__sparkles" aria-hidden="true"></div>
+    <p class="modal__kicker">🪔 Shubh Deepavali 🪔</p>
+    <h2 id="greeting-title" class="modal__title">Happy Diwali 2026</h2>
+    <p class="modal__text" id="greeting-text">
+      May the divine light of a thousand diyas fill your home with joy, your heart with peace
+      and your life with endless prosperity. Wishing you and your family a sparkling Diwali!
+    </p>
+    <p class="modal__sign">With love, from the Festival of Lights</p>
+    <div class="modal__actions">
+      <button id="btn-greeting-celebrate" class="btn btn--primary btn--sm">CELEBRATE NOW</button>
+      <button id="btn-greeting-close" class="btn btn--outline btn--sm">CLOSE</button>
+    </div>
+  </div>
+
+  <!-- ============ TOASTS ============ -->
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <!-- ============ WEBGL FALLBACK ============ -->
+  <div id="fallback" class="fallback is-hidden">
+    <div class="fallback__inner glass">
+      <p class="modal__kicker">🪔 Shubh Deepavali 🪔</p>
+      <h2 class="fallback__title">HAPPY DIWALI 2026</h2>
+      <p class="fallback__text">
+        Your browser could not start WebGL, so the full 3D celebration is unavailable.
+        Enjoy this lighter version of the festival of lights.
+      </p>
+      <div class="fallback__lights"><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+  </div>
+
+  <noscript>
+    <div class="fallback">
+      <div class="fallback__inner glass">
+        <h2 class="fallback__title">HAPPY DIWALI 2026</h2>
+        <p class="fallback__text">Please enable JavaScript to experience the 3D celebration.</p>
+      </div>
+    </div>
+  </noscript>
+
+</div>
+
+<script>
+/* Fast WebGL capability probe so we can show a graceful fallback
+   without waiting for a module that may never load. */
+(function () {
+  var ok = false;
+  try {
+    var c = document.createElement('canvas');
+    ok = !!(window.WebGLRenderingContext && (c.getContext('webgl2') || c.getContext('webgl')));
+  } catch (e) { ok = false; }
+  window.__HAS_WEBGL__ = ok;
+  if (!ok) {
+    document.documentElement.classList.add('no-webgl');
+  }
+})();
+</script>
+
+<script type="module" src="script.js"></script>
+</body>
+</html>
